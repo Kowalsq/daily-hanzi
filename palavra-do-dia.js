@@ -698,19 +698,19 @@ if (family === "accessoryRectangular") {
   // Hanzi grande em cima; pinyin e tradução juntos numa linha embaixo
   widget.setPadding(0, 4, 0, 4);
   const h = widget.addText(hanzi);
-  h.font = Font.boldSystemFont(30);
+  h.font = Font.boldSystemFont(36);
   h.lineLimit = 1;
   h.minimumScaleFactor = 0.4;
-  widget.addSpacer(2);
+  widget.addSpacer(1);
   const line = widget.addStack();
   line.layoutHorizontally();
   line.centerAlignContent();
   const p = line.addText(pinyin);
-  p.font = Font.semiboldSystemFont(12);
+  p.font = Font.semiboldSystemFont(14);
   p.lineLimit = 1;
   p.minimumScaleFactor = 0.6;
   const t = line.addText(` · ${pt}`);
-  t.font = Font.systemFont(12);
+  t.font = Font.systemFont(14);
   t.lineLimit = 1;
   t.minimumScaleFactor = 0.6;
   t.textOpacity = 0.7;
