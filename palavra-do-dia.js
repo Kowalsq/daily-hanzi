@@ -776,10 +776,10 @@ if (config.runsInWidget) {
     const d = new Date(thisHour);
     d.setHours(d.getHours() + i);
     const row = new UITableRow();
-    const label = i === 0 ? "AGORA" : `${String(d.getHours()).padStart(2, "0")}h`;
-    row.addText(label).widthWeight = 15;
-    row.addText(hz, py).widthWeight = 35;
-    row.addText(tr).widthWeight = 50;
+    const label = i === 0 ? "agora" : `${String(d.getHours()).padStart(2, "0")}h`;
+    row.addText(label).widthWeight = 19;
+    row.addText(hz, py).widthWeight = 33;
+    row.addText(tr).widthWeight = 48;
     row.height = 50;
     table.addRow(row);
   }
