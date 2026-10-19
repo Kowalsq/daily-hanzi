@@ -16,8 +16,9 @@ Widget para a tela de bloqueio do iPhone que mostra uma palavra de chinês por h
 ## Como funciona
 
 - **622 palavras**: glossário do curso (versões 1.0.1 e 2 1.0.0) + vocabulário do HSK1.
-- A palavra troca a cada hora. A ordem é embaralhada, mas fixa: nenhuma palavra se repete
-  antes de passar pelas 622 (cerca de 26 dias).
+- A palavra troca a cada hora. Nenhuma palavra se repete antes de passar pelas 622
+  (cerca de 26 dias), e cada volta tem uma ordem nova, então a mesma palavra não cai
+  sempre no mesmo horário.
 - Funciona offline, sem servidor nem conta.
 - Abrindo o script no app, aparece a palavra de agora e as das próximas 13 horas.
 

@@ -6,7 +6,7 @@
 // 中文 Palavra do Dia — HSK1 + Glossário 1.0.1 + Glossário 2 1.0.0
 // Widget para tela de bloqueio e tela inicial do iOS.
 // Mostra a cada hora uma palavra: caractere, pinyin e português.
-// 622 palavras, ordem embaralhada fixa — só repete após 622 horas (~26 dias).
+// 622 palavras; cada volta (~26 dias) tem uma ordem embaralhada nova.
 //
 // Para adicionar/editar palavras, basta mexer na lista WORDS
 // abaixo: ["caractere", "pinyin", "português"]
@@ -663,7 +663,20 @@ function shuffled(arr, seed) {
   return a;
 }
 
-const ORDER = shuffled(WORDS, 20260702);
+// Cada volta pela lista usa um embaralhamento diferente, para que as
+// palavras não caiam sempre nos mesmos horários (ex.: de madrugada).
+const orderCache = {};
+function orderForCycle(cycle) {
+  if (!orderCache[cycle]) orderCache[cycle] = shuffled(WORDS, 20260702 + cycle * 7919);
+  return orderCache[cycle];
+}
+// Palavra exibida numa hora qualquer (contada a partir de START)
+function wordAt(hourNum) {
+  const n = WORDS.length;
+  const cycle = Math.floor(hourNum / n);
+  const pos = ((hourNum % n) + n) % n;
+  return { word: orderForCycle(cycle)[pos], pos };
+}
 const START = new Date(2026, 6, 1); // 1º de julho de 2026 (mês é 0-indexado)
 
 const now = new Date();
@@ -671,8 +684,7 @@ const thisHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.
 // conta horas pelo relógio local (ignora pulos de horário de verão)
 const dayNumber = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - START) / 86400000);
 const hourNumber = dayNumber * 24 + now.getHours();
-const idx = ((hourNumber % ORDER.length) + ORDER.length) % ORDER.length;
-const [hanzi, pinyin, pt] = ORDER[idx];
+const { word: [hanzi, pinyin, pt], pos: idx } = wordAt(hourNumber);
 
 // ---------- Montagem do widget ----------
 const widget = new ListWidget();
@@ -747,7 +759,7 @@ if (family === "accessoryRectangular") {
   t.minimumScaleFactor = 0.6;
 
   widget.addSpacer();
-  const foot = widget.addText(`${idx + 1}/${ORDER.length}`);
+  const foot = widget.addText(`${idx + 1}/${WORDS.length}`);
   foot.font = Font.systemFont(8);
   foot.textColor = Color.white();
   foot.textOpacity = 0.5;
@@ -760,8 +772,7 @@ if (config.runsInWidget) {
   const table = new UITable();
   table.showSeparators = true;
   for (let i = 0; i < 14; i++) {
-    const j = (idx + i) % ORDER.length;
-    const [hz, py, tr] = ORDER[j];
+    const [hz, py, tr] = wordAt(hourNumber + i).word;
     const d = new Date(thisHour);
     d.setHours(d.getHours() + i);
     const row = new UITableRow();

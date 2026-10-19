@@ -7,7 +7,8 @@ Widget de tela de bloqueio/inicial que mostra a cada hora uma palavra de chinês
   + 235 novas do `glossario_2_1.0.0.xlsx` (as outras 81 dele já estavam na lista).
 - Funciona 100% offline, sem servidor. A palavra troca na virada de cada hora
   (o iOS decide o momento exato de atualizar, então pode atrasar alguns minutos).
-- A ordem é embaralhada de forma fixa — só repete depois de 622 horas (~26 dias).
+- Só repete depois de passar pelas 622 palavras (~26 dias), e cada volta é embaralhada
+  de um jeito diferente: a palavra que caiu de madrugada numa volta aparece em outro horário na seguinte.
 
 ## Instalação no iPhone (5 minutos)
 
@@ -37,8 +38,7 @@ Widget de tela de bloqueio/inicial que mostra a cada hora uma palavra de chinês
 
 Abra o script no Scriptable (ou edite o `.js` no PC e cole de novo) e mexa na lista
 `WORDS` no topo. Cada linha é `["caractere", "pinyin", "português"],`.
-Atenção: adicionar ou remover palavras reembaralha a ordem inteira (ela continua
-fixa, mas fica diferente da anterior).
+Atenção: adicionar ou remover palavras reembaralha a ordem inteira.
 
 ## Observações sobre o glossário original
 
