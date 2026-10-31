@@ -33,6 +33,19 @@ Widget para a tela de bloqueio do iPhone que mostra uma palavra de chinês por h
 O passo a passo completo, com a tela inicial e as observações sobre o glossário, está no
 [LEIA-ME.md](LEIA-ME.md).
 
+## Flashcards no computador
+
+Abra [`flashcards.html`](flashcards.html) com dois cliques (Chrome ou Edge). Funciona offline.
+
+- Vire o cartão (espaço), diga se **errou** (1) ou **acertou** (2). Só isso.
+- Cada acerto espaça a próxima revisão (1, 3, 7, 14, 30 dias...); errou, volta para amanhã
+  e aparece de novo na mesma sessão.
+- 15 palavras novas por dia (ajustável); frente em hanzi, português ou misturado.
+- Pronúncia com a voz chinesa do Windows (tecla V), se estiver instalada.
+- O progresso fica salvo no navegador.
+
+Depois de mudar as palavras do widget, rode `python flashcards/gerar.py` para atualizar os flashcards.
+
 ## Editar as palavras
 
 As palavras ficam na lista `WORDS`, no topo do script. Cada linha segue o formato:
@@ -49,4 +62,5 @@ Adicionar ou remover palavras gera uma nova ordem embaralhada.
 |---|---|
 | [`palavra-do-dia.js`](palavra-do-dia.js) | O widget (script do Scriptable) com a lista de palavras |
 | [`LEIA-ME.md`](LEIA-ME.md) | Guia de instalação detalhado e correções feitas nos glossários |
+| [`flashcards.html`](flashcards.html) | App de flashcards para o computador |
 | [`glossario_2_1.0.0.xlsx`](glossario_2_1.0.0.xlsx) | Planilha original do glossário 2 |

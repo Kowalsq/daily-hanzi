@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards 中文</title>
+<style>
+/* Layout: uma coluna central; o cartão é o centro de tudo, controles embaixo dele */
+:root{
+  --bg:#f6f3f1; --surface:#ffffff; --fg:#231b1b; --muted:#7d6f6c; --line:#e4dcd8;
+  --accent:#a3262a; --good:#2f7a4f; --bad:#b4442f;
+  --han:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+  --ui:"Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#171213; --surface:#221b1c; --fg:#f1e9e6; --muted:#a3948f; --line:#3a2f30;
+  --accent:#e0676a; --good:#5fbf86; --bad:#ec7d66; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--ui)}
+.app{max-width:760px;margin:0 auto;padding:24px 16px 40px;display:flex;flex-direction:column;gap:20px;min-height:100%}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:18px;font-weight:600;display:flex;gap:8px;align-items:baseline}
+h1 span{font-family:var(--han);color:var(--accent)}
+nav{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+nav button{border:0;background:transparent;color:var(--muted);font:500 13px var(--ui);padding:6px 14px;border-radius:999px;cursor:pointer}
+nav button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.stats b{color:var(--fg);font-variant-numeric:tabular-nums;font-weight:600}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 24px;text-align:center;cursor:pointer;user-select:none;position:relative}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tag{position:absolute;top:14px;left:18px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.han{font-family:var(--han);font-size:clamp(56px,12vw,96px);font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+.han.small{font-size:clamp(36px,7vw,56px)}
+.py{font-size:24px;font-weight:600;color:var(--accent)}
+.pt{font-size:22px}
+.pt.front{font-size:30px;font-weight:600}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+.speak{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:6px 14px;font:500 13px var(--ui);cursor:pointer}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answers button,.big{font:600 16px var(--ui);padding:16px;border-radius:14px;border:0;cursor:pointer;color:#fff}
+.bad{background:var(--bad)} .good{background:var(--good)}
+.big{background:var(--fg);color:var(--bg);width:100%}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+kbd{font:12px var(--ui);opacity:.75;margin-left:6px}
+.done{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:48px 16px}
+.done .han{font-size:64px}
+.opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.opts select,.opts input{font:13px var(--ui);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.opts input[type=number]{width:64px}
+
+#list input[type=search]{width:100%;font:15px var(--ui);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.h{font-family:var(--han);font-size:20px;white-space:nowrap}
+td.p{color:var(--accent)}
+.lvl{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.lvl.l3{border-color:var(--good);color:var(--good)}
+footer{margin-top:auto;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:12px var(--ui);padding:0}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><span>中文</span> Flashcards</h1>
+    <nav>
+      <button id="tabStudy" aria-pressed="true">Estudar</button>
+      <button id="tabList" aria-pressed="false">Palavras</button>
+    </nav>
+  </header>
+
+  <section id="study">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="stats" id="stats"></div>
+      <div class="bar"><i id="progress"></i></div>
+      <div id="stage"></div>
+      <div class="opts">
+        <label>Frente do cartão
+          <select id="dir">
+            <option value="han">Hanzi</option>
+            <option value="pt">Português</option>
+            <option value="mix">Misturado</option>
+          </select>
+        </label>
+        <label>Palavras novas por dia <input id="newPerDay" type="number" min="0" max="100"></label>
+      </div>
+    </div>
+  </section>
+
+  <section id="list" hidden>
+    <input id="q" type="search" placeholder="Buscar por hanzi, pinyin ou português">
+    <table><tbody id="rows"></tbody></table>
+  </section>
+
+  <footer>
+    <span>Progresso salvo neste navegador.</span>
+    <button id="reset">Zerar progresso</button>
+  </footer>
+</div>
+
+<script>
+const WORDS = /*WORDS*/[];
+
+// ---------- Progresso (Leitner simples) ----------
+// nível 0 = nova; cada acerto sobe um nível e espaça a próxima revisão
+const DAYS = [0, 1, 3, 7, 14, 30, 60, 120];
+const KEY = "flashcards-zh-v1";
+const DAY = 86400000;
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+let S = load();
+S.cards ??= {}; S.newPerDay ??= 15; S.dir ??= "han"; S.introduced ??= {};
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+
+const id = (w) => w[0] + "|" + w[1];
+const card = (w) => S.cards[id(w)];
+const today = () => new Date().toISOString().slice(0, 10);
+const level = (w) => (card(w) ? card(w).lvl : 0);
+
+function buildQueue() {
+  const now = Date.now();
+  const due = WORDS.filter((w) => card(w) && card(w).due <= now)
+    .sort((a, b) => card(a).due - card(b).due);
+  const usedToday = S.introduced[today()] || 0;
+  const fresh = shuffle(WORDS.filter((w) => !card(w))).slice(0, Math.max(0, S.newPerDay - usedToday));
+  return shuffle(due).concat(fresh);
+}
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+let queue = [], cur = null, shown = false, front = "han", total = 0, doneCount = 0;
+
+function startSession() {
+  queue = buildQueue(); total = queue.length; doneCount = 0; next();
+}
+function next() {
+  cur = queue.shift() || null; shown = false;
+  front = S.dir === "mix" ? (Math.random() < 0.5 ? "han" : "pt") : S.dir;
+  render();
+}
+function answer(ok) {
+  if (!cur || !shown) return;
+  const c = card(cur);
+  if (!c) { S.introduced[today()] = (S.introduced[today()] || 0) + 1; }
+  let lvl = c ? c.lvl : 0;
+  if (ok) {
+    lvl = Math.min(lvl + 1, DAYS.length - 1);
+    S.cards[id(cur)] = { lvl, due: Date.now() + DAYS[lvl] * DAY - 3600000 };
+    doneCount++;
+  } else {
+    lvl = 1;
+    S.cards[id(cur)] = { lvl, due: Date.now() + DAY - 3600000 };
+    // volta para a fila desta sessão, alguns cartões depois
+    queue.splice(Math.min(3, queue.length), 0, cur);
+  }
+  save(); next();
+}
+
+// ---------- Fala (voz chinesa do Windows, se instalada) ----------
+let zhVoice = null;
+function pickVoice() { zhVoice = speechSynthesis.getVoices().find((v) => /zh[-_]CN/i.test(v.lang)) || speechSynthesis.getVoices().find((v) => /^zh/i.test(v.lang)) || null; }
+if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  const u = new SpeechSynthesisUtterance(text.replace(/\s*\/\s*/g, "，"));
+  u.lang = "zh-CN"; if (zhVoice) u.voice = zhVoice; u.rate = 0.85;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+// ---------- Tela ----------
+const $ = (s) => document.getElementById(s);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderStats() {
+  const seen = WORDS.filter((w) => card(w));
+  const learned = seen.filter((w) => card(w).lvl >= 3).length;
+  $("stats").innerHTML =
+    `<span>Nesta sessão <b>${doneCount}/${total}</b></span>` +
+    `<span>Aprendidas <b>${learned}</b></span>` +
+    `<span>Estudando <b>${seen.length - learned}</b></span>` +
+    `<span>Nunca vistas <b>${WORDS.length - seen.length}</b></span>`;
+  $("progress").style.width = total ? (100 * doneCount / total) + "%" : "100%";
+}
+
+function render() {
+  renderStats();
+  const st = $("stage");
+  if (!cur) {
+    const nextDue = Math.min(...WORDS.filter(card).map((w) => card(w).due));
+    const when = isFinite(nextDue) ? new Date(nextDue).toLocaleString("pt-BR", { weekday: "long", hour: "2-digit", minute: "2-digit" }) : null;
+    st.innerHTML = `<div class="card done" tabindex="-1"><div class="han">好</div><b>Tudo em dia.</b>
+      <span class="hint">${when ? "Próxima revisão: " + when + "." : ""} Quer mais? Aumente "palavras novas por dia" ou estude extra.</span></div>
+      <div style="margin-top:12px"><button class="big" id="extra">Estudar 10 palavras extras</button></div>`;
+    $("extra").onclick = () => { queue = shuffle(WORDS).slice(0, 10); total = queue.length; doneCount = 0; next(); };
+    return;
+  }
+  const [hz, py, pt] = cur;
+  const isNew = !card(cur);
+  const tag = isNew ? "nova" : "revisão · nível " + card(cur).lvl;
+  let body;
+  if (!shown) {
+    body = front === "han"
+      ? `<div class="han ${hz.length > 4 ? "small" : ""}">${esc(hz)}</div>`
+      : `<div class="pt front">${esc(pt)}</div>`;
+    body += `<div class="hint">Tente lembrar · clique ou aperte espaço para virar</div>`;
+  } else {
+    body = `<div class="han ${hz.length > 4 ? "small" : ""}">${esc(hz)}</div>
+      <div class="py">${esc(py)}</div><div class="pt">${esc(pt)}</div>
+      <button class="speak" id="speak">Ouvir <kbd>V</kbd></button>`;
+  }
+  st.innerHTML = `<div class="card" id="cardEl" tabindex="0"><span class="tag">${tag}</span>${body}</div>` +
+    (shown
+      ? `<div class="answers" style="margin-top:12px"><button class="bad" id="no">Errei <kbd>1</kbd></button><button class="good" id="yes">Acertei <kbd>2</kbd></button></div>`
+      : `<div style="margin-top:12px"><button class="big" id="flip">Virar cartão <kbd>espaço</kbd></button></div>`);
+  if (shown) {
+    $("no").onclick = () => answer(false); $("yes").onclick = () => answer(true);
+    $("speak").onclick = (e) => { e.stopPropagation(); speak(hz); };
+    speak(hz);
+  } else {
+    $("flip").onclick = flip; $("cardEl").onclick = flip;
+  }
+}
+function flip() { if (cur && !shown) { shown = true; render(); } }
+
+document.addEventListener("keydown", (e) => {
+  if ($("study").hidden || e.target.matches("input,select")) return;
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+  else if (e.key === "1") answer(false);
+  else if (e.key === "2") answer(true);
+  else if ((e.key === "v" || e.key === "V") && cur && shown) speak(cur[0]);
+});
+
+// ---------- Lista ----------
+function renderList() {
+  const q = $("q").value.trim().toLowerCase();
+  const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const nq = norm(q);
+  const rows = WORDS.filter((w) => !q || w[0].includes(q) || norm(w[1]).includes(nq) || norm(w[2]).includes(nq));
+  $("rows").innerHTML = rows.map((w) => {
+    const l = level(w);
+    const label = !card(w) ? "nova" : l >= 3 ? "aprendida" : "nível " + l;
+    return `<tr><td class="h">${esc(w[0])}</td><td class="p">${esc(w[1])}</td><td>${esc(w[2])}</td><td><span class="lvl ${l >= 3 ? "l3" : ""}">${label}</span></td></tr>`;
+  }).join("");
+}
+$("q").oninput = renderList;
+
+function tab(which) {
+  $("study").hidden = which !== "study"; $("list").hidden = which !== "list";
+  $("tabStudy").setAttribute("aria-pressed", which === "study");
+  $("tabList").setAttribute("aria-pressed", which === "list");
+  if (which === "list") renderList();
+}
+$("tabStudy").onclick = () => tab("study");
+$("tabList").onclick = () => tab("list");
+
+$("dir").value = S.dir;
+$("dir").onchange = (e) => { S.dir = e.target.value; save(); if (cur && !shown) { front = S.dir === "mix" ? (Math.random() < 0.5 ? "han" : "pt") : S.dir; render(); } };
+$("newPerDay").value = S.newPerDay;
+$("newPerDay").onchange = (e) => { S.newPerDay = Math.max(0, Math.min(100, +e.target.value || 0)); save(); startSession(); };
+$("reset").onclick = () => {
+  const b = $("reset");
+  if (b.dataset.armed) { S = { cards: {}, newPerDay: S.newPerDay, dir: S.dir, introduced: {} }; save(); b.textContent = "Zerar progresso"; delete b.dataset.armed; startSession(); }
+  else { b.dataset.armed = "1"; b.textContent = "Clique de novo para confirmar"; setTimeout(() => { delete b.dataset.armed; b.textContent = "Zerar progresso"; }, 4000); }
+};
+
+startSession();
+</script>
+</body>
+</html>
